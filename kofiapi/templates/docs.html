@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kofi-Duffel-API</title>
+</head>
+<body>
+    <h2><u>END POINTS</u></h2><br>
+    GET  : https://kofy-images-travel-api.vercel.app/flights/ <br>
+    POST : https://kofy-images-travel-api.vercel.app/payment_intent/ <br>
+    POST : https://kofy-images-travel-api.vercel.app/confirm_payment_intent/ <br>
+    POST : https://kofy-images-travel-api.vercel.app/book_flight/ <br><br>
+
+    <u>DOCS</u>
+    FOR ONE WAY:<br>
+    Query parameters must contain <br>
+    origin,destination,departure_date,adult,journey_type<br><br>
+    
+    RETURN FLIGHT:<br>
+    Query parameters must contain <br>
+    origin,destination,departure_date,adult,journey_type,return_date <br><br>
+    
+    After a user chooses one offer id <br>
+    collect all their passenger info for each passenger id<br>
+    in the form [ {...}, {...},etc for all passenger id ] based on how many passenger ids were returned<br><br>
+    eg. For 2 passengers
+    <pre>
+        [
+        {
+          "phone_number": "+44 2080160508",
+          "email": "mae@example.com",
+          "born_on": "1956-10-17",
+          "title": "ms",
+          "gender": "f",
+          "family_name": "Jemison",
+          "given_name": "Mae",
+          "id": "pas_0000AVSIeeJsSM3ynMO6G8"
+        },
+        {
+            "phone_number": "+44 2080160508",
+            "email": "data@example.com",
+            "born_on": "1956-10-17",
+            "title": "ms",
+            "gender": "m",
+            "family_name": "Richard",
+            "given_name": "Mae",
+            "id": "pas_0000AVSIfhdJsSM3ynMO6439"
+          }
+      ]
+    </pre>
+    FOR PAYMENT: (DUFFEL PAYMENT DOESNT WORK IN INDIA)<br>
+    Send POST request intent to <br>
+    https://kofy-images-travel-api.vercel.app/payment_intent/
+    along with offer id. <br>
+    It returns a payment intent id and client token that is passed in the duffel react component to make payment<br><br>
+    <u>Link to documentation for card integration</u> :
+    https://duffel.com/docs/guides/collecting-customer-card-payments#collect-payment <br>
+
+    
+    CONFIRM PAYMENT:<br>
+    Send POST request along with payment_intent id to confirm is payment was made.
+    Returns succeded if it was successful<br><br>
+    
+    
+    Then proceed to make the order<br>
+    POST request to,<br>
+    https://kofy-images-travel-api.vercel.app/book_flight/<br>
+    Here you pass in the offer id and the correct format of the passengers details list as shown above<br>
+    Returns the booking reference and time created <br><br><br>
+    
+    
+    
+
+</body>
+</html>
