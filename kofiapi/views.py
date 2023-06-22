@@ -226,18 +226,19 @@ def confirm_payment_intent(request):
     
 @api_view(['POST'])
 def book_flight(request):
-
     offer_id = request.data['offer_id']
     offer_url = f'https://api.duffel.com/air/offers/{offer_id}'
     offer = requests.get(url = offer_url,headers=headers).json()
+
     url = 'https://api.duffel.com/air/orders'
-    
+
     # instant order
+    total = str(float(offer['data']['total_amount']) + float(request.data['services_total_amount']))
     payments = [
         {
             "type": "balance",
             "currency": offer['data']['total_currency'],
-            "amount": offer['data']['total_amount']
+            "amount": total
         }
     ]
 
@@ -246,12 +247,44 @@ def book_flight(request):
         "selected_offers":[offer_id],
         "payments":payments,
         "passengers":request.data['passengers'],
+        "services":request.data['services'],
         "type":"instant"
         }
     }
     order = requests.post(url=url,headers=headers,json=data).json()
     return Response(order)
     # {"Booking_reference":order['data']['booking_reference'],"created_at":order['data']['created_at']}
+
+@api_view(['GET'])
+def services(request):
+    offer_id = request.query_params.get("offer_id")
+    seats = f'https://api.duffel.com/air/seat_maps?offer_id={offer_id}'
+    seat_map_response = requests.get(seats, headers=headers).json()
+    bags = f'https://api.duffel.com/air/offers/{offer_id}?return_available_services=true'
+    bags_response = requests.get(bags, headers=headers).json()
+
+    return Response(
+        {
+            'seat_map':seat_map_response,
+            'extra_bags':bags_response['data']['available_services']
+        })
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def docs(request):  
     return render(request,'docs.html')
