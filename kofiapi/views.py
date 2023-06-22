@@ -20,7 +20,7 @@ class CustomPagination(PageNumberPagination):
             'results': data
         })
 
-access_token = 'duffel_test_87CbV5trVVFR4FRHbtfPymmy-3G4yqY1INBoIS1fieQ'
+access_token = 'duffel_test_OKIiZ1F1RN3VFxOjr_IjDwpj-y5oYexVvpOVSsDF7Go'
 
 import requests
 from pprint import pprint
