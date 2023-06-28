@@ -20,16 +20,16 @@ class CustomPagination(PageNumberPagination):
             'results': data
         })
 
-access_token = 'duffel_test_OKIiZ1F1RN3VFxOjr_IjDwpj-y5oYexVvpOVSsDF7Go'
+access_token = 'duffel_test_6WRW8ZaQewraWWkraO12a4KCvR_TceMwG__3oeBW2Ke'
 
 import requests
-from pprint import pprint
+
 headers = {
     "Accept-Encoding": "gzip",
     "Accept": "application/json",
     "Content-Type" : "application/json",
     "Duffel-Version" : "v1",
-    "Authorization": "Bearer duffel_test_NeTvLJYCLhVeEOkEqKsaaA_8oGmfB0d2OdUugY10rep" 
+    "Authorization": f"Bearer {access_token}" 
 }
 
 @api_view(['GET'])
@@ -226,14 +226,15 @@ def confirm_payment_intent(request):
     
 @api_view(['POST'])
 def book_flight(request):
+    print("here 1")
     offer_id = request.data['offer_id']
     offer_url = f'https://api.duffel.com/air/offers/{offer_id}'
     offer = requests.get(url = offer_url,headers=headers).json()
-
     url = 'https://api.duffel.com/air/orders'
 
-    # instant order
-    total = str(float(offer['data']['total_amount']) + float(request.data['services_total_amount']))
+    # instant order       
+    total = str(float(offer['data']['total_amount']) + float(request.data.get('services_total_amount',0)))
+
     payments = [
         {
             "type": "balance",
@@ -247,11 +248,14 @@ def book_flight(request):
         "selected_offers":[offer_id],
         "payments":payments,
         "passengers":request.data['passengers'],
-        "services":request.data['services'],
         "type":"instant"
         }
     }
+    if request.data.get('services',False):
+        data['data']['services'] = request.data.get('services')
+
     order = requests.post(url=url,headers=headers,json=data).json()
+  
     return Response(order)
     # {"Booking_reference":order['data']['booking_reference'],"created_at":order['data']['created_at']}
 
@@ -269,26 +273,27 @@ def services(request):
             'extra_bags':bags_response['data']['available_services']
         })
 
-    
+@api_view(['POST'])
+def order_cancellation(request):
+    url = 'https://api.duffel.com/air/order_cancellations'
+    id = request.data['order_id']
+    data = {
+        "data": {
+                "order_id": id
+            }
+    }
+    res = requests.post(url,headers=headers,json=data).json()
+    return Response({'test response':res})
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+@api_view(['POST'])
+def confirm_order_cancellation(request):
+    cancel_id = request.data['cancel_id']
+    url = f'https://api.duffel.com/air/order_cancellations/{cancel_id}/actions/confirm'
+    res = requests.post(url, headers=headers).json()
+    return Response(res)
 
 def docs(request):  
     return render(request,'docs.html')
-
 
 def handler404(request, exception):
     return render(request,'404.html')
